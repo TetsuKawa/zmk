@@ -25,3 +25,7 @@ properties:
     type: int
     description: Number of pulses in one full rotation
     required: false
+  debounce-ms:
+    type: int
+    default: 0
+    description: Debounce interval in milliseconds.
