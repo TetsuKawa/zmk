@@ -32,6 +32,16 @@ static int ec11_sample_fetch(const struct device *dev, enum sensor_channel chan)
     uint8_t val;
     int8_t delta;
 
+    // --- debounce ---
+    if (drv_cfg->debounce_ms > 0) {
+        uint32_t current_time = k_uptime_get_32();
+        if (current_time - drv_data->last_sample_time < drv_cfg->debounce_ms) {
+            return 0; // skip
+        }
+        drv_data->last_sample_time = current_time;
+    }
+    // ----------------------
+
     __ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL || chan == SENSOR_CHAN_ROTATION);
 
     val = ec11_get_ab_state(dev);
@@ -154,6 +164,7 @@ int ec11_init(const struct device *dev) {
         .b = GPIO_DT_SPEC_INST_GET(n, b_gpios),                                                    \
         .resolution = DT_INST_PROP_OR(n, resolution, 1),                                           \
         .steps = DT_INST_PROP_OR(n, steps, 0),                                                     \
+        .debounce_ms = DT_INST_PROP_OR(n, debounce_ms, 0),                                         \
     };                                                                                             \
     DEVICE_DT_INST_DEFINE(n, ec11_init, NULL, &ec11_data_##n, &ec11_cfg_##n, POST_KERNEL,          \
                           CONFIG_SENSOR_INIT_PRIORITY, &ec11_driver_api);
