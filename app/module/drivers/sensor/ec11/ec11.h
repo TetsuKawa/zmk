@@ -26,7 +26,7 @@ struct ec11_data {
     int8_t pulses;
     int8_t ticks;
     int8_t delta;
-    uint32_t last_time;
+    uint32_t last_sample_time; // for debounce
 
 #ifdef CONFIG_EC11_TRIGGER
     struct gpio_callback a_gpio_cb;

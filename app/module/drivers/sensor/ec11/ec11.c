@@ -32,15 +32,15 @@ static int ec11_sample_fetch(const struct device *dev, enum sensor_channel chan)
     uint8_t val;
     int8_t delta;
 
-    // debounce
-    uint32_t current_time = k_uptime_get_32();
-    drv_data->last_time = current_time;
-
-    if (current_time - drv_data->last_time < drv_cfg->debounce_ms) {
-        return 0;
+    // --- debounce ---
+    if (drv_cfg->debounce_ms > 0) {
+        uint32_t current_time = k_uptime_get_32();
+        if (current_time - drv_data->last_sample_time < drv_cfg->debounce_ms) {
+            return 0; // skip
+        }
+        drv_data->last_sample_time = current_time;
     }
-    drv_data->last_time = current_time;
-    // debounce
+    // ----------------------
 
     __ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL || chan == SENSOR_CHAN_ROTATION);
 
